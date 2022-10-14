@@ -1,20 +1,23 @@
 # EXP-04-Interfacing a 16X2 type LCD display to LPC2148 ARM 7Microcontroller
 
-Name :
+```
+Name : Monisha T
 
-Roll no :
+Roll no : 212221240029
 
-Date of experiment :
+Date of experiment : 14/10/2022
 
- 
+ ```
 
 
 ## Interfacing a 16X2 type LCD display to LPC2148 ARM 7 Microcontroller 
 
 ## Aim: 
 To Interface 16X2 type LCD display to LPC2148 ARM 7 and write a code for displaying a string to it
+
 ## Components required:
-Proteus ISIS professional suite, Kiel μ vision 5 Development environment 
+Proteus ISIS professional suite, Kiel μ vision 5 Development environment
+
 ## Theory 
  
 ## LCD16X2 
@@ -123,20 +126,97 @@ Step 9: Select the hex file from the Kiel program folder and import the program 
 
 ## Kiel - Program  
 
+```python
+
+#include<lpc214x.h>
+#include<stdint.h>
+#include<stdio.h>
+#include<stdlib.h>
+
+void delay_ms(uint16_t j) // Fuction for delay in milliseconds 
+{
+	uint16_t x,i;
+	for(i=0;i<j;i++)
+	{
+		for(x=0; x<6000; x++);   // loop to generate 1 millisecond delay with Clk = 60MHz
+	}
+}
+
+void LCD_CMD(char command)
+{
+	IO0PIN = ( (IO0PIN & 0xFFFF00FF) | (command<<8) );
+	IO0SET = 0x00000040; // EN = 1 
+	IO0CLR = 0x00000030; // RS = 0,RW = 0
+	delay_ms(2);
+	IO0CLR = 0x00000040;
+	delay_ms(5);
+}
+
+void LCD_INIT(void)
+{
+	IO0DIR = 0x0000FFF0;  // P0.8 TO P0.15 LCD Data. P0.4,5,6 AS RS RW and EN
+	delay_ms(20);
+	LCD_CMD(0x38);   // Initialize lcd
+	LCD_CMD(0x0C);   //Display on cursor off
+	LCD_CMD(0x06);   // Auto increment cursor
+	LCD_CMD(0x01);   // Display clear
+	LCD_CMD(0x80);   // First line first position
+}
+
+void LCD_STRING (char* msg)
+{
+	
+	uint8_t i=0;
+	while(msg[i]!=0)
+	{
+		IO0PIN = ( (IO0PIN & 0xFFFF00FF) | (msg[i]<<8) );
+		IO0SET = 0x00000050; // RS = 1, , EN = 1 
+		IO0CLR = 0x00000020; // RW = 0
+		delay_ms(2);
+		IO0CLR = 0x00000040;  // EN =0, RS and RW unchanged (i.e. RS =1, RW =0)
+		delay_ms(5);
+		i++;
+	}
+}
+
+void LCD_CHAR (char msg)
+{
+	IO0PIN = ( (IO0PIN & 0xFFFF00FF) | (msg<<8) );
+	IO0SET = 0x00000050; // RS = 1, , EN = 1 
+	IO0CLR = 0x00000020; // RW = 0
+	delay_ms(2);
+	IO0CLR = 0x00000040;  // EN =0, RS and RW unchanged (i.e. RS =1, RW =0)
+	delay_ms(5);
+}
+int main(void)
+{
+	LCD_INIT();
+	LCD_STRING("Welcome to AIML");
+	LCD_CMD(0xC0);
+	LCD_STRING("212221240029");
+	return 0;
+}
 
 
+```
+# Proteus simulation 
+
+## DISPLAY OFF
+
+![output](./off.png)
 
 
-## Proteus simulation 
+## DISPLAY ON
+
+![output](./on.png)
 
 
+#  layout Diagram 
+
+![output](./pdf.png)
 
 
-##  layout Diagram 
-
-
-
-## Result :
+# Result :
 
 Interfaced an LCD with ARM microcontroller is executed and displayed the strings  
 
